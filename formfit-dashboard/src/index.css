@@ -1,0 +1,58 @@
+:root {
+  --chalk: #eae6dc;
+  --chalk-dim: #ddd7c7;
+  --panel: #e2ddd0;
+  --iron: #1e2320;
+  --iron-soft: #565f58;
+  --iron-faint: #8b9187;
+  --hairline: rgba(30, 35, 32, 0.16);
+  --hairline-strong: rgba(30, 35, 32, 0.32);
+
+  /* IPF plate colors, reused as semantic accents throughout the UI */
+  --plate-red: #b23a2e; /* 25kg — fault / high severity */
+  --plate-blue: #2c5c86; /* 20kg — primary / neutral accent */
+  --plate-yellow: #c79a2e; /* 15kg — caution */
+  --plate-green: #2f6b4f; /* 10kg — clean rep / good form */
+
+  --font-display: "Big Shoulders Display", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--chalk);
+  color: var(--iron);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--plate-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}

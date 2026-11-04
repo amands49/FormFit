@@ -54,12 +54,13 @@ function LiveSession({ exercise, onEnd }) {
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext("2d");
 
+        // Record the camera stream directly so saved clips contain the user's
+        // footage without the separate skeleton overlay canvas.
         // Clip capture is a bonus feature, not core to the session --
-        // if the browser doesn't support captureStream/MediaRecorder, or
-        // it throws for any reason, the live session keeps working with
-        // no clips captured rather than failing to start at all.
+        // if MediaRecorder is unavailable or throws, the live session keeps
+        // working with no clips rather than failing to start.
         try {
-          clipRecorderRef.current = new RollingClipRecorder(canvas);
+          clipRecorderRef.current = new RollingClipRecorder(stream);
         } catch (err) {
           console.warn("Clip recording unavailable this session:", err);
           clipRecorderRef.current = null;
@@ -107,8 +108,8 @@ function LiveSession({ exercise, onEnd }) {
     return () => {
       cancelled = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      streamRef.current?.getTracks().forEach((t) => t.stop());
       clipRecorderRef.current?.stop();
+      streamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
@@ -116,12 +117,12 @@ function LiveSession({ exercise, onEnd }) {
     if (endingRef.current) return;
     endingRef.current = true;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    streamRef.current?.getTracks().forEach((t) => t.stop());
     // Free every segment we recorded but never captured a fault against --
     // that's most of them, since a segment only survives if it happened to
     // be "latest" the instant a fault fired.
     clipRecorderRef.current?.revokeExcept(Object.values(capturedClipsRef.current));
     clipRecorderRef.current?.stop();
+    streamRef.current?.getTracks().forEach((t) => t.stop());
     onEnd(trackerRef.current.getSessionSummary(), capturedClipsRef.current);
   }
 

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+
+# Local database (created on first run of the backend)
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.log
+
+# Env / editor / OS
+.env
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store

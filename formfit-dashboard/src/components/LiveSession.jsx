@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { getPoseLandmarker, POSE_CONNECTIONS } from "../pose/landmarker";
-import { SquatTracker } from "../pose/squatTracker";
+import { createTracker } from "../pose/trackers";
+import { RollingClipRecorder } from "../pose/clipRecorder";
+import { FaultClipTracker } from "../pose/faultClipTracker";
 
 const VISIBILITY_MIN = 0.15;
 
-function LiveSession({ onEnd }) {
+function LiveSession({ exercise, onEnd }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const rafRef = useRef(null);
-  const trackerRef = useRef(new SquatTracker());
+  const trackerRef = useRef(createTracker(exercise.id));
+  const clipRecorderRef = useRef(null);
+  const faultClipTrackerRef = useRef(new FaultClipTracker());
+  const capturedClipsRef = useRef({}); // { [faultTag]: objectUrl }
   const endingRef = useRef(false);
 
   const [phase, setPhase] = useState("starting"); // starting | running | error
@@ -49,6 +54,18 @@ function LiveSession({ onEnd }) {
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext("2d");
 
+        // Record the camera stream directly so saved clips contain the user's
+        // footage without the separate skeleton overlay canvas.
+        // Clip capture is a bonus feature, not core to the session --
+        // if MediaRecorder is unavailable or throws, the live session keeps
+        // working with no clips rather than failing to start.
+        try {
+          clipRecorderRef.current = new RollingClipRecorder(stream);
+        } catch (err) {
+          console.warn("Clip recording unavailable this session:", err);
+          clipRecorderRef.current = null;
+        }
+
         setPhase("running");
 
         const loop = () => {
@@ -62,6 +79,11 @@ function LiveSession({ onEnd }) {
               drawSkeleton(ctx, lm, canvas.width, canvas.height);
               const frame = trackerRef.current.processFrame(lm);
               setStats(frame);
+
+              if (frame.new_fault && faultClipTrackerRef.current.shouldCapture(frame.new_fault)) {
+                const url = clipRecorderRef.current?.getLatestClipUrl();
+                if (url) capturedClipsRef.current[frame.new_fault] = url;
+              }
             } else {
               setStats((prev) => ({ ...prev, feedback: "Not Visible" }));
             }
@@ -86,6 +108,7 @@ function LiveSession({ onEnd }) {
     return () => {
       cancelled = true;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clipRecorderRef.current?.stop();
       streamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
@@ -94,21 +117,26 @@ function LiveSession({ onEnd }) {
     if (endingRef.current) return;
     endingRef.current = true;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    // Free every segment we recorded but never captured a fault against --
+    // that's most of them, since a segment only survives if it happened to
+    // be "latest" the instant a fault fired.
+    clipRecorderRef.current?.revokeExcept(Object.values(capturedClipsRef.current));
+    clipRecorderRef.current?.stop();
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    onEnd(trackerRef.current.getSessionSummary());
+    onEnd(trackerRef.current.getSessionSummary(), capturedClipsRef.current);
   }
 
   const isWarning = stats.feedback.startsWith("WARNING") || stats.feedback === "Not Visible";
 
   return (
-    <section aria-label="Live squat session">
-      <h1 className="page-title">Squat — live session</h1>
+    <section aria-label={`Live ${exercise.name.toLowerCase()} session`}>
+      <h1 className="page-title">{exercise.name} — live session</h1>
 
       {phase === "error" ? (
         <div className="session-error">
           <p>{errorMessage}</p>
           <button type="button" className="start-session-btn" onClick={onEnd}>
-            Back to squat
+            Back to {exercise.name.toLowerCase()}
           </button>
         </div>
       ) : (
@@ -130,7 +158,7 @@ function LiveSession({ onEnd }) {
                 </span>
               </div>
               <div className="session-stats__row">
-                <span className="session-stats__label">Knee angle</span>
+                <span className="session-stats__label">{exercise.angleLabel}</span>
                 <span className="session-stats__value">{stats.angle}°</span>
               </div>
               <div className="session-stats__row">

@@ -5,6 +5,7 @@ import SessionList from "./SessionList";
 import {
   averageScore,
   chronological,
+  faultCorrections,
   faultFrequency,
   recentTrend,
   scoreBand,
@@ -74,7 +75,7 @@ function ProgressView({ sessions, status, apiUrl, onRetry }) {
       <ProgressChart sessions={orderedOldestFirst} />
 
       <div className="grid-two">
-        <FaultBreakdown faults={faultFrequency(sessions)} />
+        <FaultBreakdown faults={faultFrequency(sessions)} corrections={faultCorrections(sessions)} />
         <SessionList sessions={sessions} />
       </div>
     </section>

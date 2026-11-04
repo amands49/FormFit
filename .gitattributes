@@ -1,0 +1,7 @@
+# Normalise line endings so Windows/macOS/Linux checkouts produce clean diffs.
+* text=auto
+*.task binary
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.webm binary

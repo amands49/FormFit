@@ -1,0 +1,5 @@
+# Only needed for the standalone desktop script (Formfit_trial.py).
+numpy
+opencv-python
+mediapipe
+requests

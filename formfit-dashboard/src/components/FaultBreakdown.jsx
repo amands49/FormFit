@@ -1,6 +1,6 @@
 import { formatWarningTag } from "../api";
 
-function FaultBreakdown({ faults }) {
+function FaultBreakdown({ faults, corrections }) {
   if (faults.length === 0) {
     return (
       <section className="panel" aria-label="Recurring form faults">
@@ -21,14 +21,19 @@ function FaultBreakdown({ faults }) {
       <ul className="faults">
         {faults.slice(0, 6).map(({ tag, count }) => (
           <li key={tag} className="faults__row">
-            <span className="faults__label">{formatWarningTag(tag)}</span>
-            <span className="faults__bar-track">
-              <span
-                className="faults__bar"
-                style={{ width: `${(count / max) * 100}%` }}
-              />
-            </span>
-            <span className="faults__count">{count}</span>
+            <div className="faults__row-head">
+              <span className="faults__label">{formatWarningTag(tag)}</span>
+              <span className="faults__bar-track">
+                <span
+                  className="faults__bar"
+                  style={{ width: `${(count / max) * 100}%` }}
+                />
+              </span>
+              <span className="faults__count">{count}</span>
+            </div>
+            {corrections?.get(tag) && (
+              <p className="faults__hint">{corrections.get(tag)}</p>
+            )}
           </li>
         ))}
       </ul>

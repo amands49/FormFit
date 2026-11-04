@@ -1,4 +1,4 @@
-import SquatFigure from "./SquatFigure";
+import PoseFigure from "./PoseFigure";
 
 function IntroPage({ onEnter }) {
   return (
@@ -34,7 +34,7 @@ function IntroPage({ onEnter }) {
         </dl>
       </div>
       <div className="intro__figure">
-        <SquatFigure animated size={220} />
+        <PoseFigure exercise="squat" animated size={220} />
       </div>
     </div>
   );

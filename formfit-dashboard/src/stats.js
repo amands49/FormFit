@@ -1,6 +1,8 @@
 /**
  * Sessions arrive from GET /sessions ordered newest first, with `warnings`
- * as a comma-separated tag string (e.g. "forward_lean,knee_valgus").
+ * as a comma-separated tag string (e.g. "forward_lean,shallow_squat") and
+ * `corrections` as the backend's computed correction text for those same
+ * tags, in the same order (see formfit-backend/main.py:build_session_out).
  * Everything here just reshapes that into what the dashboard renders.
  */
 
@@ -46,6 +48,27 @@ export function faultFrequency(sessions) {
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * tag -> correction text, picked from the first session where that tag
+ * appears. `parseWarnings(session.warnings)` and `session.corrections`
+ * are guaranteed the same length and order by construction on the
+ * backend (both derive from the same stored tag list), so zipping by
+ * index here is safe -- see build_session_out in formfit-backend/main.py.
+ */
+export function faultCorrections(sessions) {
+  const map = new Map();
+  for (const session of sessions) {
+    const tags = parseWarnings(session.warnings);
+    const corrections = session.corrections || [];
+    tags.forEach((tag, i) => {
+      if (!map.has(tag) && corrections[i]) {
+        map.set(tag, corrections[i]);
+      }
+    });
+  }
+  return map;
 }
 
 export function scoreBand(score) {

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SessionCreate(BaseModel):
@@ -17,7 +17,7 @@ class SessionOut(BaseModel):
     reps: int
     form_score: float
     warnings: str
+    corrections: List[str] = []   # computed at read time, see main.py
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

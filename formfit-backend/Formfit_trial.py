@@ -3,6 +3,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import numpy as np
 import cv2
+import os
 import time
 import requests
 from Exercise_prg import Squat
@@ -36,7 +37,7 @@ def submit_session(exercise):
 
 
 options = PoseLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=r"formfit-backend\pose_landmarker_lite.task"),
+    base_options=BaseOptions(model_asset_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "pose_landmarker_lite.task")),
     running_mode=vision.RunningMode.LIVE_STREAM,
     num_poses=1,
     min_tracking_confidence=0.5,

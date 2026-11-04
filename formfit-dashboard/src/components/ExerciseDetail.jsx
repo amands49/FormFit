@@ -1,37 +1,25 @@
-import SquatFigure from "./SquatFigure";
+import PoseVisual from "./PoseVisual";
 
-const DIRECTIONS = [
-  "Stand with feet shoulder-width apart, toes turned slightly out.",
-  "Brace your core and keep your chest up through the whole rep.",
-  "Push your hips back and bend your knees together, not one before the other.",
-  "Sink until your thighs are roughly parallel to the floor.",
-  "Keep your knees tracking over your toes — don't let them cave in.",
-  "Drive through your heels to stand back up to full extension.",
-];
-
-function ExerciseDetail({ onBack, onStart }) {
+function ExerciseDetail({ exercise, onBack, onStart }) {
   return (
-    <section aria-label="Squat">
+    <section aria-label={exercise.name}>
       <button type="button" className="back-link" onClick={onBack}>
         ← Exercises
       </button>
 
       <div className="detail">
         <div className="detail__demo">
-          <SquatFigure animated size={200} />
-          <span className="detail__demo-caption">Squat cycle</span>
+          <PoseVisual exercise={exercise.id} poseKey="correct" animated size={200} alt={`${exercise.name} demo`} />
+          <span className="detail__demo-caption">{exercise.name} cycle</span>
         </div>
 
         <div className="detail__body">
-          <h1 className="page-title">Squat</h1>
-          <p className="page-lede">
-            FormFit AI tracks your hip, knee, and back angles frame by frame
-            and flags forward lean the moment it happens.
-          </p>
+          <h1 className="page-title">{exercise.name}</h1>
+          <p className="page-lede">{exercise.summary}</p>
 
-          <h2 className="detail__subhead">How to squat efficiently</h2>
+          <h2 className="detail__subhead">How to {exercise.name.toLowerCase()} efficiently</h2>
           <ol className="directions">
-            {DIRECTIONS.map((step) => (
+            {exercise.directions.map((step) => (
               <li key={step}>{step}</li>
             ))}
           </ol>

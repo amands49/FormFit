@@ -1,4 +1,4 @@
-import SquatFigure from "./SquatFigure";
+import PoseVisual from "./PoseVisual";
 import { EXERCISES } from "../exercises";
 
 function ExerciseGrid({ onSelect }) {
@@ -16,7 +16,7 @@ function ExerciseGrid({ onSelect }) {
             className="exercise-card"
             onClick={() => onSelect(ex.id)}
           >
-            <SquatFigure size={72} />
+            <PoseVisual exercise={ex.id} poseKey="neutral" size={72} alt={ex.name} />
             <span className="exercise-card__name">{ex.name}</span>
             <span className="exercise-card__tagline">{ex.tagline}</span>
           </button>
@@ -24,7 +24,7 @@ function ExerciseGrid({ onSelect }) {
         <div className="exercise-card exercise-card--soon" aria-disabled="true">
           <span className="exercise-card__soon">More on the roadmap</span>
           <span className="exercise-card__tagline">
-            Deadlift and press are next up in the exercise library.
+            Deadlift and overhead press are next up in the exercise library.
           </span>
         </div>
       </div>
